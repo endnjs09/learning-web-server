@@ -11,5 +11,14 @@
         비번: <input type="password" name="password"><br>
         <button type="submit">로그인</button>
     </form>
+
+    <script th:inline="javascript">
+        /* 백엔드에서 loginError라는 메시지가 왔는지 확인 */
+        var errorMessage = [[${loginError}]];
+
+        if (errorMessage != null) {
+            alert(errorMessage); // 팝업창 띄우기!
+        }
+    </script>
 </body>
 </html>

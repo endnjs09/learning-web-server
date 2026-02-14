@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+  <h2>게시글 목록</h2>
+  <table border="1">
+    <thead>
+      <tr>
+        <th>번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+      </tr>
+    </thead>
+    <tbody>
+    <tr th:each="post : ${postList}">
+      <td th:text="${post.id}">1</td>
+      <td>
+        <a th:href="@{/view(id=${post.id})}" th:text="${post.title}">제목입니다</a>
+      </td>
+      <td th:text="${post.writer.username}">작성자</td>
+    </tr>
+    </tbody>
+  </table>
+</body>
+</html>

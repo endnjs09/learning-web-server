@@ -3,6 +3,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
+
 @Service
 @RequiredArgsConstructor
 public class BoardService {
@@ -27,4 +30,17 @@ public class BoardService {
         // 포인트 적립
         memberService.givePoint(memberId);
     }
+
+    // 모든 게시글을 가져오는 메서드
+    public List<Board> findAllPosts() {
+        return boardRepository.findAll(); // 리포지토리가 제공하는 findAll()을 호출
+    }
+
+
+    public Board findPostById(Long id) {
+        // id로 찾고 없으면 에러를 던지거나 null을 반환함
+        return boardRepository.findById(id).orElse(null);
+    }
+
+
 }

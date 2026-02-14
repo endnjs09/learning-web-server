@@ -23,6 +23,7 @@ public class MemberService {
 
     public Member login(String username, String password) {
         return memberRepository.findByUsername(username).filter(m -> m.getPassword().equals(password)).orElse(null);
+        // DB(MySQL) 창고를 뒤져봄
         // 아이디로 사람 찾고 -> 비번 맞는지 확인하고 틀리면 null 반환
     }
 
