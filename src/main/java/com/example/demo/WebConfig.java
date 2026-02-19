@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
+@Configuration  // 설정 파일 (서버 켜지면 이 설계도 부터 읽음)
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer{
 

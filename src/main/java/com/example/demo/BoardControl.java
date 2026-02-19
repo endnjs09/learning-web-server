@@ -1,6 +1,7 @@
 package com.example.demo;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,12 +16,12 @@ public class BoardControl {
     private final BoardService boardService; // 서비스 주입
 
     @GetMapping("/list")
-    public String list(Model model) {
+    public String list(Model model, @RequestParam(value="page", defaultValue="0") int page) {
         // boardService가 글을 다 긁어옴
-        List<Board> boards = boardService.findAllPosts();
+        Page<Board> paging = boardService.getList(page);
 
         // boards라는 이름으로 데이터를 HTML에 전달
-        model.addAttribute("postList", boards);
+        model.addAttribute("paging", paging);
 
         return "list"; // list.html 파일로 이동
     }

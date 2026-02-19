@@ -7,10 +7,14 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
-public class LoginInterceptor implements HandlerInterceptor{
+public class LoginInterceptor implements HandlerInterceptor {   // HandlerInterceptor: 문지기 역할
+    // 누구를 막고 누구를 들여보낼지 결정
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        // HttpServletRequest: 세션, 쿠키, 주소정보 담은 가방
+        // HttpServletResponse: Redirect
+        // Object: 목적지(주소)
 
         // 세션 가져오기
         HttpSession session = request.getSession();

@@ -1,4 +1,8 @@
 package com.example.demo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +35,17 @@ public class BoardService {
         memberService.givePoint(memberId);
     }
 
+    public Page<Board> getList(int page) {
+        // 요청한 페이지 번호, 한 페이지당 개수, 정렬 기준
+        // page: 0부터 시작 / 10: 10개씩 / Sort: id 필드 기준 내림차순(DESC) -> 최신글이 위로 오게
+        Pageable pageable = PageRequest.of(page, 10, Sort.Direction.DESC, "id");
+
+        return boardRepository.findAll(pageable);
+    }
+
     // 모든 게시글을 가져오는 메서드
     public List<Board> findAllPosts() {
+
         return boardRepository.findAll(); // 리포지토리가 제공하는 findAll()을 호출
     }
 
