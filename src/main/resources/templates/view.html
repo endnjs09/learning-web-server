@@ -3,13 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <title>게시글 보기</title>
+  <style>
+    .content-box {
+      width: 100%;
+      min-height: 200px;
+      padding: 15px;
+      border: 1px solid #eee;
+      background-color: #fafafa;
+      /* [핵심] 사용자가 입력한 줄바꿈과 공백을 그대로 보여줌 */
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+    .meta-info {
+      color: #666;
+      font-size: 0.9em;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body>
+
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
   <h1 th:text="${post.title}">제목이 나올 자리</h1>
-  <p>작성자: <span th:text="${post.writer.username}">작성자 이름</span></p>
+
+  <div class="meta-info">
+    작성자: <strong th:text="${post.writer.username}">작성자 이름</strong>
+    (등급: <span th:text="${post.writer.grade}">등급</span>)
+  </div>
+
   <hr>
-    <div th:text="${post.content}">내용이 나올 자리</div>
+
+  <div class="content-box" th:text="${post.content}">
+    내용이 나올 자리
+  </div>
+
   <hr>
+
   <a href="/list">목록으로 돌아가기</a>
+
+  <span th:if="${session.loginMember != null and session.loginMember.id == post.writer.id}">
+    | <a th:href="@{/edit(id=${post.id})}">수정하기</a> | <a th:href="@{/delete(id=${post.id})}"
+    onclick="return confirm('정말 삭제하시겠습니까?');"
+    style="color: red;">삭제하기</a>
+  </span>
+
+  <hr>
+  <h3>댓글 목록</h3>
+  <div th:each="comment : ${post.comments}" style="border-bottom: 1px solid #eee; padding: 10px;">
+    <strong th:text="${comment.writer.username}">작성자</strong>:
+    <span th:text="${comment.content}">댓글 내용</span>
+  </div>
+
+  <div th:if="${session.loginMember != null}" style="margin-top: 20px;">
+    <form action="/comment/write" method="post">
+      <input type="hidden" name="boardId" th:value="${post.id}">
+      <textarea name="content" rows="3" style="width: 80%;" placeholder="댓글을 입력하세요"></textarea>
+      <button type="submit">댓글 등록</button>
+    </form>
+  </div>
+
 </body>
 </html>

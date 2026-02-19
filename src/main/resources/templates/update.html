@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><title>글 수정</title></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<h1>글 수정하기</h1>
+<form action="/update" method="post">
+  <input type="hidden" name="id" th:value="${post.id}">
+
+  제목: <input type="text" name="title" th:value="${post.title}"> <br>
+  내용: <br>
+  <textarea name="content" rows="10" th:text="${post.content}"></textarea> <br>
+
+  <button type="submit">수정 완료</button>
+  <a href="javascript:history.back()">취소</a>
+</form>
+</body>
+</html>

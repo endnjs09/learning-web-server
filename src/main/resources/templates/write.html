@@ -6,9 +6,10 @@
 </head>
 <body>
     <h1>글쓰기 (포인트 적립)</h1>
-    <form action="/write" method="get">
-        회원 ID: <input type="number" name="id" placeholder="본인 ID 입력"> <br>
-        제목: <input type="text" name="title"> <br>
+    <form action="/write" method="post">
+        제목: <input type="text" name="title" placeholder="제목을 입력하세요"> <br>
+        내용: <br>
+        <textarea name="content" rows="10" cols="30" placeholder="내용을 입력하세요"></textarea> <br>
         <button type="submit">글 올리기</button>
     </form>
 </body>

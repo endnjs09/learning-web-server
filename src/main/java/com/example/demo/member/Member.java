@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.member;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,7 +12,9 @@ public class Member {
     @GeneratedValue(strategy = GenerationType.IDENTITY)     // 번호 자동 증가
     private Long id;
 
+    @Column(unique = true)
     private String username;    // 이름
+
     private int points;     // 점수
     private String grade;   // 등급
     private String password;    // 비번

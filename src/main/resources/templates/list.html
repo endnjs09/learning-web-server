@@ -4,55 +4,61 @@
   <meta charset="UTF-8">
   <title>게시판 목록</title>
   <style>
-    /* 페이지 버튼을 예쁘게 보기 위한 최소한의 스타일 */
     .pagination { display: flex; list-style: none; padding: 0; }
     .pagination li { margin: 0 5px; }
     .active { font-weight: bold; color: red; text-decoration: none; }
   </style>
 </head>
 <body>
-<h2>게시글 목록</h2>
-<table border="1">
-  <thead>
-  <tr>
-    <th>번호</th>
-    <th>제목</th>
-    <th>작성자</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr th:each="post : ${paging.content}">
-    <td th:text="${post.id}">1</td>
-    <td>
-      <a th:href="@{/view(id=${post.id})}" th:text="${post.title}">제목입니다</a>
-    </td>
-    <td th:text="${post.writer.username}">작성자</td>
-  </tr>
-  </tbody>
-</table>
 
-<div th:if="${!paging.isEmpty()}">
-  <ul class="pagination">
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-    <li th:if="${paging.hasPrevious}">
-      <a th:href="@{|?page=${paging.number - 1}|}">이전</a>
-    </li>
+  <h2>게시글 목록</h2>
+  <table border="1" style="width: 100%; border-collapse: collapse;">
+    <thead>
+    <tr>
+      <th style="width: 10%;">번호</th>
+      <th>제목</th>
+      <th style="width: 20%;">작성자</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="post : ${paging.content}">
+      <td th:text="${post.id}" style="text-align: center;">1</td>
+      <td>
+        <a th:href="@{/view(id=${post.id})}" th:text="${post.title}">제목입니다</a>
+      </td>
+      <td th:text="${post.writer.username}" style="text-align: center;">작성자</td>
+    </tr>
+    </tbody>
+  </table>
 
-    <li th:each="page: ${#numbers.sequence(0, paging.totalPages - 1)}"
-        th:if="${page >= paging.number - 5 and page <= paging.number + 5}">
-      <a th:href="@{|?page=${page}|}"
-         th:text="${page + 1}"
-         th:classappend="${page == paging.number} ? 'active' : ''"></a>
-    </li>
+  <div th:if="${!paging.isEmpty()}">
+    <ul class="pagination">
+      <li th:if="${paging.hasPrevious}">
+        <a th:href="@{|?page=${paging.number - 1}|}">이전</a>
+      </li>
+      <li th:each="page: ${#numbers.sequence(0, paging.totalPages - 1)}"
+          th:if="${page >= paging.number - 5 and page <= paging.number + 5}">
+        <a th:href="@{|?page=${page}|}"
+           th:text="${page + 1}"
+           th:classappend="${page == paging.number} ? 'active' : ''"></a>
+      </li>
+      <li th:if="${paging.hasNext}">
+        <a th:href="@{|?page=${paging.number + 1}|}">다음</a>
+      </li>
+    </ul>
+  </div>
 
-    <li th:if="${paging.hasNext}">
-      <a th:href="@{|?page=${paging.number + 1}|}">다음</a>
-    </li>
+  <hr>
+  <a href="/write-form"
+     th:onclick="${session.loginMember == null} ? 'alert(\'로그인이 필요한 서비스입니다!\'); return false;' : ''">
+    글쓰기
+  </a>
 
-  </ul>
-</div>
-
-<hr>
-<a href="/write-form">글쓰기</a>
+  <script th:if="${loginMessage}">
+    // Thymeleaf가 서버에서 받은 메시지를 자바스크립트 alert에 넣어줍니다.
+    alert('[[${loginMessage}]]');
+  </script>
 </body>
 </html>

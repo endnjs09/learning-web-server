@@ -7,8 +7,9 @@
 <body>
     <h1>회원가입</h1>
     <form action="/join" method="post"> <!--데이터를 들고 /join이라는 주소로 찾아가기, 방식은 GET(주소창에 다보이게)방식으로-->
-        아이디: <input type="text" name="name"><br>    <!--입력창에 적힌 내용은 'name'이라는 이름을 붙여서-->
-        비밀번호: <input type="password" name="password"><br> <button type="submit">가입하기</button>
+        아이디: <input type="text" name="name" required><br>    <!--입력창에 적힌 내용은 'name'이라는 이름을 붙여서-->
+        비밀번호: <input type="password" name="password" required><br>
+        <button type="submit">가입하기</button>
     </form>
 </body>
 </html>

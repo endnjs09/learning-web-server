@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.config;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,7 +23,7 @@ public class LoginInterceptor implements HandlerInterceptor {   // HandlerInterc
         if (session.getAttribute("loginMember") == null) {
 
             // 로그인 정보 없으면 페이지로 쫓아내고(Redirect) 다음 단계로 못 가게 막음
-            response.sendRedirect("/login-form");
+            response.sendRedirect("/list");
             return false;
         }
 

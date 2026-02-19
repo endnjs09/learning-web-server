@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="navbar">
+  <style>
+    .user-area {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      text-align: right;
+    }
+    .login-form-inline input {
+      padding: 5px;
+      margin-left: 5px;
+      width: 120px;
+    }
+    .grade-badge {
+      color: white;
+      background-color: #007bff;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.8em;
+    }
+    .error-msg {
+      color: red;
+      font-size: 0.8em;
+      margin-top: 5px;
+      display: block;
+    }
+  </style>
+
+  <div class="user-area">
+    <div th:if="${session.loginMember != null}">
+      <strong>[[${session.loginMember.username}]]</strong>님 환영합니다!
+      <span class="grade-badge" th:text="${session.loginMember.grade}">BRONZE</span>
+      <span>포인트: <b th:text="${session.loginMember.points}">0</b>P</span>
+      <a href="/logout" style="margin-left: 15px; color: #666; font-size: 0.9em;">로그아웃</a>
+    </div>
+
+    <div th:if="${session.loginMember == null}">
+      <form action="/login" method="post" class="login-form-inline">
+        <input type="text" name="username" placeholder="아이디" required>
+        <input type="password" name="password" placeholder="비밀번호" required>
+        <button type="submit">로그인</button>
+        <a href="/join-form" style="margin-left: 10px; font-size: 0.9em;">회원가입</a>
+      </form>
+      <span class="error-msg" th:if="${loginError}" th:text="${loginError}"></span>
+    </div>
+  </div>
+</div>
+</html>

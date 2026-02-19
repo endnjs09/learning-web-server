@@ -1,5 +1,6 @@
-package com.example.demo;
+package com.example.demo.member;
 
+import com.example.demo.config.LoginInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -14,7 +15,8 @@ public class WebConfig implements WebMvcConfigurer{
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/write-form", "/write", "/post/**") // 해당 주소들은 검사
-                .excludePathPatterns("/login-form", "/login", "/join", "/list"); // 해당 주소들은 그냥 통과
+                .addPathPatterns("/write-form", "/write", "/post/**")
+                // [수정] /login-form은 이제 안 쓰니까 삭제하고, 회원가입 폼(/join-form)을 추가합니다.
+                .excludePathPatterns("/list", "/login", "/join", "/join-form", "/css/**", "/js/**");
     }
 }
