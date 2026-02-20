@@ -12,22 +12,41 @@ public class LoginInterceptor implements HandlerInterceptor {   // HandlerInterc
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        // HttpServletRequest: 세션, 쿠키, 주소정보 담은 가방
-        // HttpServletResponse: Redirect
-        // Object: 목적지(주소)
-
-        // 세션 가져오기
         HttpSession session = request.getSession();
 
-        // 세션에 로그인 정보(loginMember) 있는지 확인
         if (session.getAttribute("loginMember") == null) {
+            // 주소가 /api로 시작하는 요청이라면 JSON 응답
+            if (request.getRequestURI().startsWith("/api")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 에러
+                response.getWriter().write("로그인이 필요합니다."); // 에러 메시지
+                return false;
+            }
 
-            // 로그인 정보 없으면 페이지로 쫓아내고(Redirect) 다음 단계로 못 가게 막음
+            // 일반 페이지 요청이면 기존처럼 리다이렉트
             response.sendRedirect("/list");
             return false;
         }
-
-        // 로그인 정보 있으면 통과
         return true;
     }
+
+//    @Override
+//    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+//        // HttpServletRequest: 세션, 쿠키, 주소정보 담은 가방
+//        // HttpServletResponse: Redirect
+//        // Object: 목적지(주소)
+//
+//        // 세션 가져오기
+//        HttpSession session = request.getSession();
+//
+//        // 세션에 로그인 정보(loginMember) 있는지 확인
+//        if (session.getAttribute("loginMember") == null) {
+//
+//            // 로그인 정보 없으면 페이지로 쫓아내고(Redirect) 다음 단계로 못 가게 막음
+//            response.sendRedirect("/list");
+//            return false;
+//        }
+//
+//        // 로그인 정보 있으면 통과
+//        return true;
+//    }
 }
