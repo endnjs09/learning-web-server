@@ -15,8 +15,15 @@ public class WebConfig implements WebMvcConfigurer{
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
-                .addPathPatterns("/write-form", "/write", "/post/**")
-                // [수정] /login-form은 이제 안 쓰니까 삭제하고, 회원가입 폼(/join-form)을 추가합니다.
-                .excludePathPatterns("/list", "/login", "/join", "/join-form", "/css/**", "/js/**");
+                .addPathPatterns("/write-form", "/edit", "/api/board/write", "/api/board/update", "/api/board/delete") // 보호할 주소들
+                .excludePathPatterns("/list", "/api/board/list", "/api/member/**", "/css/**", "/js/**"); // 허용할 주소들
     }
+
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(loginInterceptor)
+//                .addPathPatterns("/write-form", "/write", "/post/**")
+//                // [수정] /login-form은 이제 안 쓰니까 삭제하고, 회원가입 폼(/join-form)을 추가합니다.
+//                .excludePathPatterns("/list", "/login", "/join", "/join-form", "/css/**", "/js/**");
+//    }
 }
