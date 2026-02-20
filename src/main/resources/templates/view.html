@@ -1,67 +1,205 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>게시글 보기</title>
+  <meta charset="UTF-8"><title>게시글 보기</title>
   <style>
-    .content-box {
-      width: 100%;
-      min-height: 200px;
-      padding: 15px;
-      border: 1px solid #eee;
-      background-color: #fafafa;
-      /* [핵심] 사용자가 입력한 줄바꿈과 공백을 그대로 보여줌 */
-      white-space: pre-wrap;
-      line-height: 1.6;
-    }
-    .meta-info {
-      color: #666;
-      font-size: 0.9em;
-      margin-bottom: 20px;
-    }
+    .content-box { width: 100%; min-height: 200px; padding: 15px; border: 1px solid #eee; background-color: #fafafa; white-space: pre-wrap; line-height: 1.6; }
+    .meta-info { color: #666; font-size: 0.9em; margin-bottom: 20px; }
+    .comment-item { border-bottom: 1px solid #eee; padding: 10px; margin-bottom: 5px; }
+    .comment-writer { font-weight: bold; color: #333; }
   </style>
 </head>
 <body>
-
   <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-  <h1 th:text="${post.title}">제목이 나올 자리</h1>
+  <h1 id="viewTitle">로딩 중...</h1>
+  <div class="meta-info">작성자: <strong id="viewWriter"></strong></div>
+  <hr>
+  <div id="viewContent" class="content-box"></div>
+  <hr>
 
-  <div class="meta-info">
-    작성자: <strong th:text="${post.writer.username}">작성자 이름</strong>
-    (등급: <span th:text="${post.writer.grade}">등급</span>)
+  <div>
+    <a href="/list">목록으로 돌아가기</a>
+    <span id="ownerButtons" style="display: none;">
+        | <a id="editLink" href="#">수정하기</a>
+        | <a href="#" onclick="deletePost()" style="color: red;">삭제하기</a>
+    </span>
   </div>
 
   <hr>
 
-  <div class="content-box" th:text="${post.content}">
-    내용이 나올 자리
-  </div>
-
-  <hr>
-
-  <a href="/list">목록으로 돌아가기</a>
-
-  <span th:if="${session.loginMember != null and session.loginMember.id == post.writer.id}">
-    | <a th:href="@{/edit(id=${post.id})}">수정하기</a> | <a th:href="@{/delete(id=${post.id})}"
-    onclick="return confirm('정말 삭제하시겠습니까?');"
-    style="color: red;">삭제하기</a>
-  </span>
-
-  <hr>
   <h3>댓글 목록</h3>
-  <div th:each="comment : ${post.comments}" style="border-bottom: 1px solid #eee; padding: 10px;">
-    <strong th:text="${comment.writer.username}">작성자</strong>:
-    <span th:text="${comment.content}">댓글 내용</span>
+  <div id="commentListArea">
   </div>
 
   <div th:if="${session.loginMember != null}" style="margin-top: 20px;">
-    <form action="/comment/write" method="post">
-      <input type="hidden" name="boardId" th:value="${post.id}">
-      <textarea name="content" rows="3" style="width: 80%;" placeholder="댓글을 입력하세요"></textarea>
-      <button type="submit">댓글 등록</button>
-    </form>
+    <textarea id="commentContent" rows="3" style="width: 80%;" placeholder="댓글을 입력하세요"></textarea>
+    <button type="button" onclick="registerComment()">댓글 등록</button>
   </div>
 
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const boardId = urlParams.get('id');
+    const loginMemberName = "[[${session.loginMember?.username}]]"; // 세션 정보 미리 확보
+
+    // 페이지 로드 시 게시글 및 댓글 불러오기
+    window.onload = async () => {
+      if (!boardId) {
+        alert("잘못된 접근입니다.");
+        location.href = "/list";
+        return;
+      }
+      await loadPostDetail();
+    };
+
+    // 게시글 정보 불러오기 함수
+    async function loadPostDetail() {
+      const response = await fetch(`/api/board/${boardId}`);
+      if (response.ok) {
+        const post = await response.json();
+
+        // 게시글 렌더링
+        document.getElementById('viewTitle').innerText = post.title;
+        document.getElementById('viewWriter').innerText = post.writerName;
+        document.getElementById('viewContent').innerText = post.content;
+        document.getElementById('editLink').href = `/edit?id=${post.id}`;
+
+        // 본인 확인 버튼 노출
+        if (loginMemberName === post.writerName) {
+          document.getElementById('ownerButtons').style.display = 'inline';
+        }
+
+        // 댓글 목록 렌더링 (post 안에 comments가 포함되어 있다고 가정)
+        // 만약 따로 불러오고 싶다면 별도의 API를 호출해야 합니다.
+        renderComments(post.comments);
+      }
+    }
+
+
+    ////////////////////////////////////////////////////////////////////////////////////////
+
+
+    // 댓글 목록 렌더링 함수
+    function renderComments(comments) {
+      const area = document.getElementById('commentListArea');
+      if (!comments || comments.length === 0) {
+        area.innerHTML = "<p style='color: #999;'>등록된 댓글이 없습니다.</p>";
+        return;
+      }
+
+      area.innerHTML = comments.map(c => `
+        <div class="comment-item">
+          <span class="comment-writer">${c.writerName}</span>:
+          <span>${c.content}</span>
+        </div>
+      `).join('');
+    }
+
+    // 댓글 등록 함수
+    async function registerComment() {
+      const content = document.getElementById('commentContent').value;
+      if(!content.trim()) return alert("내용을 입력하세요.");
+
+      const data = { boardId: boardId, content: content };
+
+      const response = await fetch('/api/comment/write', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        document.getElementById('commentContent').value = ''; // 입력창 비우기
+        // 페이지 전체 새로고침 대신 게시글 데이터를 다시 불러와서 댓글만 업데이트
+        await loadPostDetail();
+      } else {
+        alert("댓글 등록에 실패했습니다.");
+      }
+    }
+
+    // 5. 게시글 삭제 함수
+    async function deletePost() {
+      if (!confirm('정말 삭제하시겠습니까?')) return;
+
+      const response = await fetch(`/api/board/${boardId}`, { method: 'DELETE' });
+      if (response.ok) {
+        alert("삭제되었습니다.");
+        location.href = "/list";
+      } else {
+        const msg = await response.text();
+        alert("삭제 실패: " + msg);
+      }
+    }
+  </script>
 </body>
 </html>
+
+
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--  <meta charset="UTF-8">-->
+<!--  <title>게시글 보기</title>-->
+<!--  <style>-->
+<!--    .content-box {-->
+<!--      width: 100%;-->
+<!--      min-height: 200px;-->
+<!--      padding: 15px;-->
+<!--      border: 1px solid #eee;-->
+<!--      background-color: #fafafa;-->
+<!--      /* [핵심] 사용자가 입력한 줄바꿈과 공백을 그대로 보여줌 */-->
+<!--      white-space: pre-wrap;-->
+<!--      line-height: 1.6;-->
+<!--    }-->
+<!--    .meta-info {-->
+<!--      color: #666;-->
+<!--      font-size: 0.9em;-->
+<!--      margin-bottom: 20px;-->
+<!--    }-->
+<!--  </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--  <div th:replace="~{fragments/navbar :: navbar}"></div>-->
+
+<!--  <h1 th:text="${post.title}">제목이 나올 자리</h1>-->
+
+<!--  <div class="meta-info">-->
+<!--    작성자: <strong th:text="${post.writer.username}">작성자 이름</strong>-->
+<!--    (등급: <span th:text="${post.writer.grade}">등급</span>)-->
+<!--  </div>-->
+
+<!--  <hr>-->
+
+<!--  <div class="content-box" th:text="${post.content}">-->
+<!--    내용이 나올 자리-->
+<!--  </div>-->
+
+<!--  <hr>-->
+
+<!--  <a href="/list">목록으로 돌아가기</a>-->
+
+<!--  <span th:if="${session.loginMember != null and session.loginMember.id == post.writer.id}">-->
+<!--    | <a th:href="@{/edit(id=${post.id})}">수정하기</a> | <a th:href="@{/delete(id=${post.id})}"-->
+<!--    onclick="return confirm('정말 삭제하시겠습니까?');"-->
+<!--    style="color: red;">삭제하기</a>-->
+<!--  </span>-->
+
+<!--  <hr>-->
+<!--  <h3>댓글 목록</h3>-->
+<!--  <div th:each="comment : ${post.comments}" style="border-bottom: 1px solid #eee; padding: 10px;">-->
+<!--    <strong th:text="${comment.writer.username}">작성자</strong>:-->
+<!--    <span th:text="${comment.content}">댓글 내용</span>-->
+<!--  </div>-->
+
+<!--  <div th:if="${session.loginMember != null}" style="margin-top: 20px;">-->
+<!--    <form action="/comment/write" method="post">-->
+<!--      <input type="hidden" name="boardId" th:value="${post.id}">-->
+<!--      <textarea name="content" rows="3" style="width: 80%;" placeholder="댓글을 입력하세요"></textarea>-->
+<!--      <button type="submit">댓글 등록</button>-->
+<!--    </form>-->
+<!--  </div>-->
+
+<!--</body>-->
+<!--</html>-->
