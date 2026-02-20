@@ -1,52 +1,125 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<div th:fragment="navbar">
-  <style>
-    .user-area {
-      background-color: #f8f9fa;
-      padding: 15px;
-      border-radius: 5px;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      text-align: right;
-    }
-    .login-form-inline input {
-      padding: 5px;
-      margin-left: 5px;
-      width: 120px;
-    }
-    .grade-badge {
-      color: white;
-      background-color: #007bff;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-size: 0.8em;
-    }
-    .error-msg {
-      color: red;
-      font-size: 0.8em;
-      margin-top: 5px;
-      display: block;
-    }
-  </style>
+  <div th:fragment="navbar">
+    <style>
+      .user-area {
+        background-color: #f8f9fa; padding: 15px; border-radius: 5px;
+        margin-bottom: 20px; border: 1px solid #ddd; text-align: right;
+      }
+      .login-form-inline input { padding: 5px; margin-left: 5px; width: 120px; }
+      .grade-badge {
+        color: white; background-color: #007bff; padding: 2px 8px;
+        border-radius: 10px; font-size: 0.8em;
+      }
+      .error-msg { color: red; font-size: 0.8em; margin-top: 5px; display: block; }
+    </style>
 
-  <div class="user-area">
-    <div th:if="${session.loginMember != null}">
-      <strong>[[${session.loginMember.username}]]</strong>님 환영합니다!
-      <span class="grade-badge" th:text="${session.loginMember.grade}">BRONZE</span>
-      <span>포인트: <b th:text="${session.loginMember.points}">0</b>P</span>
-      <a href="/logout" style="margin-left: 15px; color: #666; font-size: 0.9em;">로그아웃</a>
+    <div class="user-area">
+      <div th:if="${session.loginMember != null}">
+        <strong>[[${session.loginMember.username}]]</strong>님 환영합니다!
+        <span class="grade-badge" th:text="${session.loginMember.grade}">BRONZE</span>
+        <span>포인트: <b th:text="${session.loginMember.points}">0</b>P</span>
+        <a href="/logout" style="margin-left: 15px; color: #666; font-size: 0.9em;">로그아웃</a>
+      </div>
+
+      <div th:if="${session.loginMember == null}">
+        <div class="login-form-inline">
+          <input type="text" id="loginUsername" placeholder="아이디" required>
+          <input type="password" id="loginPassword" placeholder="비밀번호" required>
+          <button type="button" onclick="executeLogin()">로그인</button>
+          <a href="/join-form" style="margin-left: 10px; font-size: 0.9em;">회원가입</a>
+        </div>
+        <span id="apiErrorMsg" class="error-msg"></span>
+      </div>
     </div>
 
-    <div th:if="${session.loginMember == null}">
-      <form action="/login" method="post" class="login-form-inline">
-        <input type="text" name="username" placeholder="아이디" required>
-        <input type="password" name="password" placeholder="비밀번호" required>
-        <button type="submit">로그인</button>
-        <a href="/join-form" style="margin-left: 10px; font-size: 0.9em;">회원가입</a>
-      </form>
-      <span class="error-msg" th:if="${loginError}" th:text="${loginError}"></span>
-    </div>
+    <script>
+      async function executeLogin() {
+        const name = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+        const errorSpan = document.getElementById('apiErrorMsg');
+
+        // 서버 DTO(MemberRequest) 구조와 이름을 맞춰줍니다.
+        const loginData = {
+          name: name,
+          password: password
+        };
+
+        try {
+          const response = await fetch('/api/member/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(loginData)
+          });
+
+          if (response.ok) {
+            // 로그인 성공 시 페이지 새로고침 (세션 정보 반영을 위해)
+            location.reload();
+          } else {
+            // 실패 시 서버가 보낸 에러 메시지(예: "비밀번호가 틀렸습니다") 출력
+            const errorText = await response.text();
+            errorSpan.innerText = errorText;
+          }
+        } catch (error) {
+          errorSpan.innerText = "서버와 통신 중 오류가 발생했습니다.";
+        }
+      }
+    </script>
   </div>
-</div>
 </html>
+
+
+
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<div th:fragment="navbar">-->
+<!--  <style>-->
+<!--    .user-area {-->
+<!--      background-color: #f8f9fa;-->
+<!--      padding: 15px;-->
+<!--      border-radius: 5px;-->
+<!--      margin-bottom: 20px;-->
+<!--      border: 1px solid #ddd;-->
+<!--      text-align: right;-->
+<!--    }-->
+<!--    .login-form-inline input {-->
+<!--      padding: 5px;-->
+<!--      margin-left: 5px;-->
+<!--      width: 120px;-->
+<!--    }-->
+<!--    .grade-badge {-->
+<!--      color: white;-->
+<!--      background-color: #007bff;-->
+<!--      padding: 2px 8px;-->
+<!--      border-radius: 10px;-->
+<!--      font-size: 0.8em;-->
+<!--    }-->
+<!--    .error-msg {-->
+<!--      color: red;-->
+<!--      font-size: 0.8em;-->
+<!--      margin-top: 5px;-->
+<!--      display: block;-->
+<!--    }-->
+<!--  </style>-->
+
+<!--  <div class="user-area">-->
+<!--    <div th:if="${session.loginMember != null}">-->
+<!--      <strong>[[${session.loginMember.username}]]</strong>님 환영합니다!-->
+<!--      <span class="grade-badge" th:text="${session.loginMember.grade}">BRONZE</span>-->
+<!--      <span>포인트: <b th:text="${session.loginMember.points}">0</b>P</span>-->
+<!--      <a href="/logout" style="margin-left: 15px; color: #666; font-size: 0.9em;">로그아웃</a>-->
+<!--    </div>-->
+
+<!--    <div th:if="${session.loginMember == null}">-->
+<!--      <form action="/login" method="post" class="login-form-inline">-->
+<!--        <input type="text" name="username" placeholder="아이디" required>-->
+<!--        <input type="password" name="password" placeholder="비밀번호" required>-->
+<!--        <button type="submit">로그인</button>-->
+<!--        <a href="/join-form" style="margin-left: 10px; font-size: 0.9em;">회원가입</a>-->
+<!--      </form>-->
+<!--      <span class="error-msg" th:if="${loginError}" th:text="${loginError}"></span>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</div>-->
+<!--</html>-->
