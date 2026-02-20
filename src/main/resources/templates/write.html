@@ -1,16 +1,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>글쓰기</title>
+    <meta charset="UTF-8"><title>글쓰기</title>
 </head>
 <body>
-    <h1>글쓰기 (포인트 적립)</h1>
-    <form action="/write" method="post">
-        제목: <input type="text" name="title" placeholder="제목을 입력하세요"> <br>
+    <h1>글쓰기 (API 방식)</h1>
+    <form id="writeForm">
+        제목: <input type="text" id="title" placeholder="제목을 입력하세요"> <br>
         내용: <br>
-        <textarea name="content" rows="10" cols="30" placeholder="내용을 입력하세요"></textarea> <br>
-        <button type="submit">글 올리기</button>
+        <textarea id="content" rows="10" cols="30" placeholder="내용을 입력하세요"></textarea> <br>
+        <button type="button" onclick="sendWrite()">글 올리기</button>
     </form>
+
+    <script>
+        async function sendWrite() {
+            const data = {
+                title: document.getElementById('title').value,
+                content: document.getElementById('content').value
+            };
+
+            const response = await fetch('/api/board/write', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert("글이 등록되었습니다!");
+                location.href = "/list";
+            } else {
+                const msg = await response.text();
+                alert("실패: " + msg);
+            }
+        }
+    </script>
 </body>
 </html>
+
+<!--<!DOCTYPE html>-->
+<!--<html>-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>글쓰기</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <h1>글쓰기 (포인트 적립)</h1>-->
+<!--    <form action="/write" method="post">-->
+<!--        제목: <input type="text" name="title" placeholder="제목을 입력하세요"> <br>-->
+<!--        내용: <br>-->
+<!--        <textarea name="content" rows="10" cols="30" placeholder="내용을 입력하세요"></textarea> <br>-->
+<!--        <button type="submit">글 올리기</button>-->
+<!--    </form>-->
+<!--</body>-->
+<!--</html>-->
