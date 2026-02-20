@@ -18,12 +18,13 @@ public class MemberService {
         member.setPoints(member.getPoints() + 10);
 
         // 100점이 넘으면 등급 업그레이드
-        if (member.getPoints() >= 100) member.setGrade("SILVER");
-        if (member.getPoints() >= 500) member.setGrade("GOLD");
-        if (member.getPoints() >= 1000) member.setGrade("PLATINUM");
-        if (member.getPoints() >= 2000) member.setGrade("DIAMOND");
-        if (member.getPoints() >= 5000) member.setGrade("MASTER");
-        if (member.getPoints() >= 10000) member.setGrade("VIP");
+        int p = member.getPoints();
+        if (p >= 10000) member.setGrade("VIP");
+        else if (p >= 5000) member.setGrade("MASTER");
+        else if (p >= 2000) member.setGrade("DIAMOND");
+        else if (p >= 1000) member.setGrade("PLATINUM");
+        else if (p >= 500) member.setGrade("GOLD");
+        else if (p >= 100) member.setGrade("SILVER");
     }
 
     public Member login(String username, String password) {
