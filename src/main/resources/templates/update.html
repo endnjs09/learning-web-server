@@ -1,20 +1,78 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"><title>글 수정</title></head>
+  <meta charset="UTF-8"><title>글 수정</title>
+</head>
 <body>
-<div th:replace="~{fragments/navbar :: navbar}"></div>
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<h1>글 수정하기</h1>
-<form action="/update" method="post">
-  <input type="hidden" name="id" th:value="${post.id}">
+  <h1>글 수정하기 (API)</h1>
+  <form id="updateForm">
+    <input type="hidden" id="postId">
+    제목: <input type="text" id="title"> <br>
+    내용: <br>
+    <textarea id="content" rows="10" style="width: 80%;"></textarea> <br>
 
-  제목: <input type="text" name="title" th:value="${post.title}"> <br>
-  내용: <br>
-  <textarea name="content" rows="10" th:text="${post.content}"></textarea> <br>
+    <button type="button" onclick="updatePost()">수정 완료</button>
+    <a href="javascript:history.back()">취소</a>
+  </form>
 
-  <button type="submit">수정 완료</button>
-  <a href="javascript:history.back()">취소</a>
-</form>
+  <script>
+    // 페이지 로드 시 기존 데이터 채우기
+    window.onload = async () => {
+      const id = new URLSearchParams(window.location.search).get('id');
+      const response = await fetch(`/api/board/${id}`);
+      if (response.ok) {
+        const post = await response.json();
+        document.getElementById('postId').value = post.id;
+        document.getElementById('title').value = post.title;
+        document.getElementById('content').value = post.content;
+      }
+    };
+
+    // 수정
+    async function updatePost() {
+      const id = document.getElementById('postId').value;
+      const data = {
+        title: document.getElementById('title').value,
+        content: document.getElementById('content').value
+      };
+
+      const response = await fetch(`/api/board/${id}`, {
+        method: 'PUT', // BoardAPIControl의 @PutMapping과 매칭
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        alert("수정되었습니다.");
+        location.href = `/view?id=${id}`;
+      } else {
+        const msg = await response.text();
+        alert("실패: " + msg);
+      }
+    }
+  </script>
 </body>
 </html>
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--  <meta charset="UTF-8"><title>글 수정</title></head>-->
+<!--<body>-->
+<!--<div th:replace="~{fragments/navbar :: navbar}"></div>-->
+
+<!--<h1>글 수정하기</h1>-->
+<!--<form action="/update" method="post">-->
+<!--  <input type="hidden" name="id" th:value="${post.id}">-->
+
+<!--  제목: <input type="text" name="title" th:value="${post.title}"> <br>-->
+<!--  내용: <br>-->
+<!--  <textarea name="content" rows="10" th:text="${post.content}"></textarea> <br>-->
+
+<!--  <button type="submit">수정 완료</button>-->
+<!--  <a href="javascript:history.back()">취소</a>-->
+<!--</form>-->
+<!--</body>-->
+<!--</html>-->
