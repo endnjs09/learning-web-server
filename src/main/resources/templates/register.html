@@ -6,13 +6,49 @@
 </head>
 <body>
     <h1>회원가입</h1>
-    <form action="/join" method="post"> <!--데이터를 들고 /join이라는 주소로 찾아가기, 방식은 GET(주소창에 다보이게)방식으로-->
-        아이디: <input type="text" name="name" required><br>    <!--입력창에 적힌 내용은 'name'이라는 이름을 붙여서-->
-        비밀번호: <input type="password" name="password" required><br>
-        <button type="submit">가입하기</button>
+
+    <form id="joinForm">
+        아이디: <input type="text" id="username"> <br>
+        비밀번호: <input type="password" id="password"> <br>
+        <button type="button" onclick="join()">가입하기</button>
     </form>
+
+    <script>
+        async function join() {
+            // 입력값 가져오기
+            const name = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            // 서버로 보낼 데이터를 JSON으로 만들기
+            const data = { name: name, password: password };
+
+            // API 호출 (fetch 사용)
+            const response = await fetch('/api/member/join', {  // '/api/member/join'으로 가셈 (await: 올때까지 대기)
+                method: 'POST', // 데이터를 전달하는 방식
+                headers: { 'Content-Type': 'application/json' },    // 이 상자 안에는 JSON이 들어있음
+                body: JSON.stringify(data) // 자바 객체를 JSON 텍스트로 변환 (전달할 상자 속 내용물)
+            });
+
+            // 응답 처리
+            if (response.ok) {
+                alert("가입 성공!");
+                // 이름을 주소창에 포함해서 이동 (/welcome?name=홍길동)
+                location.href = `/welcome?name=${name}`;
+            }
+            else {
+                const errorMsg = await response.text();
+                alert("실패: " + errorMsg);
+            }
+        }
+    </script>
 </body>
 </html>
 
+
+<!--    <form action="/join" method="post"> &lt;!&ndash;데이터를 들고 /join이라는 주소로 찾아가기, 방식은 GET(주소창에 다보이게)방식으로&ndash;&gt;-->
+<!--        아이디: <input type="text" name="name" required><br>    &lt;!&ndash;입력창에 적힌 내용은 'name'이라는 이름을 붙여서&ndash;&gt;-->
+<!--        비밀번호: <input type="password" name="password" required><br>-->
+<!--        <button type="submit">가입하기</button>-->
+<!--    </form>-->
 <!--이름: 홍길동, 비번: 1234로 적었다면 'http://.../join?name=홍길동' 과 같은 식으로 만들어짐-->
 <!--만든 주소로 서버에 처리해달라고 호출하면 서버(스프링)에 있는 @GetMapping("/join")이 요청을 낚음-->
