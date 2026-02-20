@@ -4,61 +4,155 @@
   <meta charset="UTF-8">
   <title>게시판 목록</title>
   <style>
-    .pagination { display: flex; list-style: none; padding: 0; }
+    /* 페이지네이션 스타일 */
+    .pagination { display: flex; list-style: none; padding: 0; margin-top: 20px; }
     .pagination li { margin: 0 5px; }
-    .active { font-weight: bold; color: red; text-decoration: none; }
+    .pagination a { text-decoration: none; color: #333; padding: 5px 10px; border: 1px solid #ddd; border-radius: 3px; }
+    .active { font-weight: bold; color: white !important; background-color: #007bff; border-color: #007bff; }
+
+    /* 글쓰기 버튼 스타일 */
+    .write-btn {
+      display: inline-block; padding: 8px 16px; background-color: #28a745;
+      color: white; text-decoration: none; border-radius: 4px; float: right; margin-top: 10px;
+    }
+    .write-btn:hover { background-color: #218838; }
   </style>
 </head>
 <body>
 
   <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-  <h2>게시글 목록</h2>
+  <h2>게시글 목록 (API 방식)</h2>
   <table border="1" style="width: 100%; border-collapse: collapse;">
     <thead>
-    <tr>
+    <tr style="background-color: #f8f9fa;">
       <th style="width: 10%;">번호</th>
       <th>제목</th>
       <th style="width: 20%;">작성자</th>
     </tr>
     </thead>
-    <tbody>
-    <tr th:each="post : ${paging.content}">
-      <td th:text="${post.id}" style="text-align: center;">1</td>
-      <td>
-        <a th:href="@{/view(id=${post.id})}" th:text="${post.title}">제목입니다</a>
-      </td>
-      <td th:text="${post.writer.username}" style="text-align: center;">작성자</td>
-    </tr>
-    </tbody>
+    <tbody id="postTableBody"></tbody>
   </table>
 
-  <div th:if="${!paging.isEmpty()}">
-    <ul class="pagination">
-      <li th:if="${paging.hasPrevious}">
-        <a th:href="@{|?page=${paging.number - 1}|}">이전</a>
-      </li>
-      <li th:each="page: ${#numbers.sequence(0, paging.totalPages - 1)}"
-          th:if="${page >= paging.number - 5 and page <= paging.number + 5}">
-        <a th:href="@{|?page=${page}|}"
-           th:text="${page + 1}"
-           th:classappend="${page == paging.number} ? 'active' : ''"></a>
-      </li>
-      <li th:if="${paging.hasNext}">
-        <a th:href="@{|?page=${paging.number + 1}|}">다음</a>
-      </li>
-    </ul>
+  <div style="overflow: hidden;">
+    <div id="paginationArea" style="float: left;"></div>
+
+    <a href="/write-form" class="write-btn"
+       th:onclick="${session.loginMember == null} ? 'alert(\'로그인이 필요한 서비스입니다!\'); return false;' : ''">
+      글쓰기
+    </a>
   </div>
 
-  <hr>
-  <a href="/write-form"
-     th:onclick="${session.loginMember == null} ? 'alert(\'로그인이 필요한 서비스입니다!\'); return false;' : ''">
-    글쓰기
-  </a>
+  <script>
+    // 페이지 로드 시 0페이지 가져오기
+    window.onload = () => fetchPosts(0);
+
+    async function fetchPosts(page) {
+      try {
+        const response = await fetch(`/api/board/list?page=${page}`);
+        const data = await response.json(); // Page<BoardResponse> DTO 객체
+
+        renderTable(data.content);      // 1. 표 그리기
+        renderPagination(data);         // 2. 페이지 버튼 그리기
+      } catch (error) {
+        console.error("데이터를 불러오는데 실패했습니다:", error);
+      }
+    }
+
+    function renderTable(posts) {
+      const tbody = document.getElementById('postTableBody');
+      if (posts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:20px;">게시글이 없습니다.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = posts.map(post => `
+              <tr>
+                <td style="text-align: center; padding: 8px;">${post.id}</td>
+                <td style="padding: 8px;">
+                  <a href="/view?id=${post.id}">${post.title}</a>
+                </td>
+                <td style="text-align: center; padding: 8px;">${post.writerName}</td>
+              </tr>
+          `).join('');
+    }
+
+    function renderPagination(data) {
+      const area = document.getElementById('paginationArea');
+      let html = '<ul class="pagination">';
+
+      // '이전' 버튼
+      if (!data.first) {
+        html += `<li><a href="javascript:void(0)" onclick="fetchPosts(${data.number - 1})">이전</a></li>`;
+      }
+
+      // 페이지 번호들 (현재 페이지 기준으로 앞뒤 5개씩 노출되도록 계산 가능)
+      // 여기서는 단순하게 전체 페이지를 보여줌
+      for(let i=0; i < data.totalPages; i++) {
+        const activeClass = (i === data.number) ? 'active' : '';
+        html += `<li><a href="javascript:void(0)" class="${activeClass}" onclick="fetchPosts(${i})">${i + 1}</a></li>`;
+      }
+
+      // '다음' 버튼
+      if (!data.last) {
+        html += `<li><a href="javascript:void(0)" onclick="fetchPosts(${data.number + 1})">다음</a></li>`;
+      }
+
+      html += '</ul>';
+      area.innerHTML = html;
+    }
+  </script>
 
   <script th:if="${loginMessage}">
-    // Thymeleaf가 서버에서 받은 메시지를 자바스크립트 alert에 넣어줍니다.
     alert('[[${loginMessage}]]');
   </script>
 </body>
 </html>
+
+<!--  <h2>게시글 목록</h2>-->
+<!--  <table border="1" style="width: 100%; border-collapse: collapse;">-->
+<!--    <thead>-->
+<!--    <tr>-->
+<!--      <th style="width: 10%;">번호</th>-->
+<!--      <th>제목</th>-->
+<!--      <th style="width: 20%;">작성자</th>-->
+<!--    </tr>-->
+<!--    </thead>-->
+<!--    <tbody>-->
+<!--    <tr th:each="post : ${paging.content}">-->
+<!--      <td th:text="${post.id}" style="text-align: center;">1</td>-->
+<!--      <td>-->
+<!--        <a th:href="@{/view(id=${post.id})}" th:text="${post.title}">제목입니다</a>-->
+<!--      </td>-->
+<!--      <td th:text="${post.writer.username}" style="text-align: center;">작성자</td>-->
+<!--    </tr>-->
+<!--    </tbody>-->
+<!--  </table>-->
+
+<!--  <div th:if="${!paging.isEmpty()}">-->
+<!--    <ul class="pagination">-->
+<!--      <li th:if="${paging.hasPrevious}">-->
+<!--        <a th:href="@{|?page=${paging.number - 1}|}">이전</a>-->
+<!--      </li>-->
+<!--      <li th:each="page: ${#numbers.sequence(0, paging.totalPages - 1)}"-->
+<!--          th:if="${page >= paging.number - 5 and page <= paging.number + 5}">-->
+<!--        <a th:href="@{|?page=${page}|}"-->
+<!--           th:text="${page + 1}"-->
+<!--           th:classappend="${page == paging.number} ? 'active' : ''"></a>-->
+<!--      </li>-->
+<!--      <li th:if="${paging.hasNext}">-->
+<!--        <a th:href="@{|?page=${paging.number + 1}|}">다음</a>-->
+<!--      </li>-->
+<!--    </ul>-->
+<!--  </div>-->
+
+<!--  <hr>-->
+<!--  <a href="/write-form"-->
+<!--     th:onclick="${session.loginMember == null} ? 'alert(\'로그인이 필요한 서비스입니다!\'); return false;' : ''">-->
+<!--    글쓰기-->
+<!--  </a>-->
+
+<!--  <script th:if="${loginMessage}">-->
+<!--    // Thymeleaf가 서버에서 받은 메시지를 자바스크립트 alert에 넣어줍니다.-->
+<!--    alert('[[${loginMessage}]]');-->
+<!--  </script>-->
