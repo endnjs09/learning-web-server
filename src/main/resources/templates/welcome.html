@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"><title>가입 환영</title>
+  <style>
+    .welcome-container { text-align: center; margin-top: 100px; }
+    .home-btn { display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+  <div class="welcome-container">
+    <h1>🎉 <span id="welcomeName">사용자</span>님, 가입을 환영합니다!</h1>
+    <p>기본 등급 <b>BRONZE</b>로 설정되었으며, 다양한 활동을 시작하실 수 있습니다.</p>
+
+    <a href="/list" class="home-btn">홈으로(게시판 목록)</a>
+  </div>
+
+  <script>
+    // 페이지가 로드되면 주소창의 ?name=xxx 부분을 읽음
+    window.onload = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const name = urlParams.get('name'); // 주소창에서 name 값을 추출
+
+      if (name) {
+        document.getElementById('welcomeName').innerText = name;
+      }
+    };
+  </script>
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--  <meta charset="UTF-8">-->
+<!--  <title>가입 환영</title>-->
+<!--  <style>-->
+<!--    .welcome-container {-->
+<!--      text-align: center;-->
+<!--      margin-top: 100px;-->
+<!--    }-->
+<!--    .home-btn {-->
+<!--      display: inline-block;-->
+<!--      padding: 10px 20px;-->
+<!--      background-color: #007bff;-->
+<!--      color: white;-->
+<!--      text-decoration: none;-->
+<!--      border-radius: 5px;-->
+<!--      margin-top: 20px;-->
+<!--    }-->
+<!--  </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div th:replace="~{fragments/navbar :: navbar}"></div>-->
+
+<!--<div class="welcome-container">-->
+<!--  <h1>🎉 <span th:text="${username}">사용자</span>님, 가입을 환영합니다!</h1>-->
+<!--  <p>기본 등급 <b>BRONZE</b>로 설정되었으며, 다양한 활동을 시작하실 수 있습니다.</p>-->
+
+<!--  <a href="/list" class="home-btn">홈으로(게시판 목록)</a>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
