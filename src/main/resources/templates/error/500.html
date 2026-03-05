@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>시스템 오류</title>
+</head>
+<body>
+  <h1 style="color: darkred;">이용에 불편을 드려 죄송합니다.</h1>
+  <p>예상치 못한 문제가 발생했습니다.</p>
+  <p style="background: #eee; padding: 10px;">
+    상세 원인: <span th:text="${errorMessage}">에러 메시지</span>
+  </p>
+  <hr>
+  <a href="/list">홈으로 돌아가기</a>
+  <button onclick="history.back()">이전 페이지로</button>
+</body>
+</html>
