@@ -25,6 +25,8 @@ public class TitanicControl {
     public String doPredict(TitanicRequestDto dto, Model model) {
         // AI 서버 호출
         Map<String, Object> result = titanicService.getSurvivalPrediction(dto);
+        // dto 안에 사용자가 입렫한 내용을 담음
+        // model은 결과 화면으로 데이터를 넘기는 역할
 
         // 결과값 세팅 (FastAPI가 준 survived, probability)
         model.addAttribute("prediction", result.get("survived").equals(1) ? "생존" : "사망");
