@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>타이타닉 생존 예측</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container py-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Titanic survival probability prediction</h4>
+      </div>
+      <div class="card-body">
+        <form th:action="@{/titanic/predict}" method="post">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Pclass</label>
+              <select name="pclass" class="form-select">
+                <option value="1">1st-class</option>
+                <option value="2">2nd-class</option>
+                <option value="3" selected>3rd-class</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Sex</label>
+              <select name="sex" class="form-select">
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Age</label>
+              <input type="number" name="age" class="form-control" value="25" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Sibsp</label>
+              <input type="number" name="sibsp" class="form-control" value="0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Parch</label>
+              <input type="number" name="parch" class="form-control" value="0">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fare($)</label>
+              <input type="number" step="0.01" name="fare" class="form-control" value="7.25">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Who</label>
+              <select name="who" class="form-select">
+                <option value="man">Man</option>
+                <option value="woman">Woman</option>
+                <option value="child">Child</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Embark Town</label>
+              <select name="embark_town" class="form-select">
+                <option value="Southampton">Southampton (S)</option>
+                <option value="Cherbourg">Cherbourg (C)</option>
+                <option value="Queenstown">Queenstown (Q)</option>
+              </select>
+            </div>
+          </div>
+          <hr class="my-4">
+          <button type="submit" class="btn btn-primary w-100 py-2">Calculate</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
